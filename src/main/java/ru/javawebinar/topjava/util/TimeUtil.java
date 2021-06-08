@@ -14,4 +14,7 @@ public class TimeUtil {
     public static String format(LocalDateTime localDateTime) {
         return localDateTime.format(FORMATTER);
     }
+    public static LocalDateTime textToLocalDateTime(String textDate) {
+        return LocalDateTime.parse(textDate);
+    }
 }

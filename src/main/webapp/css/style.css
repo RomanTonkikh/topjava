@@ -14,3 +14,19 @@ th, td {
 #green {
     color: green;
 }
+
+dt {
+    width: 120px;
+    display: inline-block;
+}
+
+dl {
+    margin: 10px 0;
+    padding: 0;
+    background: none repeat scroll;
+}
+
+dd {
+    margin-left: 10px;
+    display: inline-block;
+}
