@@ -2,10 +2,9 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.storage.MealMapStorage;
+import ru.javawebinar.topjava.storage.MealStorage;
 import ru.javawebinar.topjava.storage.Storage;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.TimeUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -26,18 +26,20 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        storage = new MealMapStorage();
+        storage = new MealStorage();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.debug("doPost");
         request.setCharacterEncoding("UTF-8");
-        String id = request.getParameter("id");
-        Meal meal = new Meal(id.isEmpty() ? null : Integer.parseInt(id),
-                TimeUtil.textToLocalDateTime(request.getParameter("dateTime")),
+        String strId = request.getParameter("id");
+        int id = Integer.parseInt(strId);
+        int sizeCollection = storage.getAll().size();
+        Meal meal = new Meal(strId.isEmpty() ? null : id > 0 && id <= sizeCollection ? id : sizeCollection,
+                LocalDateTime.parse((request.getParameter("dateTime"))),
                 request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
-        storage.add(meal);
+        storage.save(meal);
         response.sendRedirect("meals");
     }
 
@@ -49,7 +51,7 @@ public class MealServlet extends HttpServlet {
             case "add":
                 log.debug("doGet forward to mealEdit.jsp");
                 Meal meal = "edit".equals(action) ? storage.get(Integer.parseInt(request.getParameter("id"))) :
-                        new Meal(LocalDateTime.now(), "", MealMapStorage.CALORIES_PER_DAY);
+                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", MealsUtil.CALORIES_PER_DAY);
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealEdit.jsp").forward(request, response);
                 break;
@@ -61,7 +63,8 @@ public class MealServlet extends HttpServlet {
             case "default":
             default:
                 log.debug("doGet forward to meals.jsp");
-                request.setAttribute("mealsTo", MealsUtil.filteredByStreams((List<Meal>) storage.getAll(), LocalTime.MIN, LocalTime.MAX, MealMapStorage.CALORIES_PER_DAY));
+                request.setAttribute("mealsTo", MealsUtil.filteredByStreams((List<Meal>) storage.getAll(),
+                        LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }

@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class TimeUtil {
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static boolean isBetweenHalfOpen(LocalTime lt, LocalTime startTime, LocalTime endTime) {
         return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
@@ -13,8 +13,5 @@ public class TimeUtil {
 
     public static String format(LocalDateTime localDateTime) {
         return localDateTime.format(FORMATTER);
-    }
-    public static LocalDateTime textToLocalDateTime(String textDate) {
-        return LocalDateTime.parse(textDate);
     }
 }
