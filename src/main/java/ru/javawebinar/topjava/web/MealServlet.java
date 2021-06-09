@@ -34,9 +34,8 @@ public class MealServlet extends HttpServlet {
         log.debug("doPost");
         request.setCharacterEncoding("UTF-8");
         String strId = request.getParameter("id");
-        int id = Integer.parseInt(strId);
         int sizeCollection = storage.getAll().size();
-        Meal meal = new Meal(strId.isEmpty() ? null : id > 0 && id <= sizeCollection ? id : sizeCollection,
+        Meal meal = new Meal((strId.isEmpty() ? null :Integer.parseInt(strId) > 0 && Integer.parseInt(strId) <= sizeCollection ? Integer.parseInt(strId) : sizeCollection),
                 LocalDateTime.parse((request.getParameter("dateTime"))),
                 request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
         storage.save(meal);
@@ -63,7 +62,7 @@ public class MealServlet extends HttpServlet {
             case "default":
             default:
                 log.debug("doGet forward to meals.jsp");
-                request.setAttribute("mealsTo", MealsUtil.filteredByStreams((List<Meal>) storage.getAll(),
+                request.setAttribute("mealsTo", MealsUtil.filteredByStreams(storage.getAll(),
                         LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
