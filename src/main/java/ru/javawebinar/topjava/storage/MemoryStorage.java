@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class MealStorage implements Storage<Meal> {
-    private static final Logger log = getLogger(MealStorage.class);
+public class MemoryStorage implements Storage<Meal> {
+    private static final Logger log = getLogger(MemoryStorage.class);
     private final AtomicInteger counter = new AtomicInteger(0);
     private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
 
@@ -36,13 +36,13 @@ public class MealStorage implements Storage<Meal> {
 
     @Override
     public Meal save(Meal meal) {
-        log.info("add");
+        log.info("save");
         if (meal.getId() == null) {
             meal.setId(counter.incrementAndGet());
             storage.put(meal.getId(), meal);
             return meal;
         }
-        return storage.compute(meal.getId(), (id, replaceableMeal) -> meal);
+        return storage.computeIfPresent(meal.getId(), (id, replaceableMeal) -> meal);
     }
 
     @Override

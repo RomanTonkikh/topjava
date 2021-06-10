@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.storage.MealStorage;
+import ru.javawebinar.topjava.storage.MemoryStorage;
 import ru.javawebinar.topjava.storage.Storage;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -26,7 +25,7 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        storage = new MealStorage();
+        storage = new MemoryStorage();
     }
 
     @Override
@@ -34,8 +33,7 @@ public class MealServlet extends HttpServlet {
         log.debug("doPost");
         request.setCharacterEncoding("UTF-8");
         String strId = request.getParameter("id");
-        int sizeCollection = storage.getAll().size();
-        Meal meal = new Meal((strId.isEmpty() ? null :Integer.parseInt(strId) > 0 && Integer.parseInt(strId) <= sizeCollection ? Integer.parseInt(strId) : sizeCollection),
+        Meal meal = new Meal((strId.isEmpty() ? null : Integer.parseInt(strId)),
                 LocalDateTime.parse((request.getParameter("dateTime"))),
                 request.getParameter("description"), Integer.parseInt(request.getParameter("calories")));
         storage.save(meal);
@@ -60,7 +58,6 @@ public class MealServlet extends HttpServlet {
                 response.sendRedirect("meals");
                 break;
             case "default":
-            default:
                 log.debug("doGet forward to meals.jsp");
                 request.setAttribute("mealsTo", MealsUtil.filteredByStreams(storage.getAll(),
                         LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
